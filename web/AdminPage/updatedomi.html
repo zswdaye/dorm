@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>修改宿舍</title>
+<link rel="stylesheet" href="../layui/css/layui.css" media="all">
+<style>
+	.imation{
+		text-align:center;
+		color:#393D49;
+		font:bold 25px sans-serif;
+	}
+	.message{
+		width:370px;
+		margin:10px auto;
+	}
+</style>
+</head>
+<body>
+<div class="layui-row">
+	<div class="layui-col-md12 imation">修改宿舍</div>
+</div>
+<form class="layui-form message">
+  <div class="layui-form-item">
+    <label class="layui-form-label">楼栋</label>
+	<div class="layui-input-inline">
+		<select name="build" lay-verify="required" class="build" disabled>
+		  <option value="">请选择楼栋</option>		  
+		</select>
+	</div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">寝室号</label>
+    <div class="layui-input-inline">
+      <input type="text" name="name" required lay-verify="required" class="layui-input" readonly>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">寝室类型</label>
+    <div class="layui-input-inline">
+      <input type="text" name="type" required lay-verify="required" class="layui-input">
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">人数</label>
+    <div class="layui-input-inline">
+      <input type="number" name="number" required  lay-verify="required|number" class="layui-input">
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">电话</label>
+    <div class="layui-input-inline">
+      <input type="tel" name="tel" required lay-verify="required|phone" class="layui-input">
+    </div>
+  </div>
+  
+  <div class="layui-form-item">
+    <div class="layui-input-block">
+      <button class="layui-btn" lay-submit lay-filter="formDemo">修改宿舍</button>
+    </div>
+  </div>
+</form>
+ 
+<script src="../layui/layui.js"></script>
+<script>
+layui.use('form', function(){
+  var form = layui.form,
+  	  $ = layui.jquery;
+	var domiid=location.href.split("=")[1];
+	$.ajax({
+	  type: "post",
+		url: "http://localhost:8080/chum/buildservlet",
+		data:{"build":"query"},
+		dataType: "json",
+		success: function (data) {
+			var option="";
+			for(var i in data){
+				option += '<option value="'+data[i].building_ID+'">'+data[i].building_Name+'</option>';
+			}
+			$(".build").append(option);
+			form.render('select');
+		}
+  });
+  setTimeout(function(){
+	  $.ajax({
+	      type: "post",
+	      url: "http://localhost:8080/chum/domiservlet",
+				data:{"domit":"queryad","id":domiid},
+	      dataType: "json",
+	      success: function (data) {
+	    	$("option[value="+data.domitory_BuildingID+"]").attr("selected",true);
+	        $("input[name=name]").val(data.domitory_Name);
+	        $("input[name=type]").val(data.domitory_Type);
+	        $("input[name=number]").val(data.domitory_Number);
+	        $("input[name=tel]").val(data.domitory_Tel);        
+	        form.render(); //更新全部         
+	      }
+	   });
+  }, 500);
+  form.on('submit(formDemo)', function(data){
+	  $.ajax({
+		  url:'http://localhost:8080/chum/domiservlet?domit=updatead&id='+domiid,
+		  type:'post',
+		  data:data.field,
+			dataType:'json',
+		  success:function(suc){
+				if(suc){
+          layer.msg('修改成功', {icon: 1});
+					var index = parent.layer.getFrameIndex(window.name);
+					setTimeout(function(){parent.layer.close(index)}, 1000);
+        }					  		
+		  }
+	  });
+		return false;
+  });
+});
+</script>
+</body>
+</html>

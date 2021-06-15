@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>楼栋管理员设置</title>
+<link rel="stylesheet" href="../layui/css/layui.css" media="all">
+<style type="text/css">
+	.form1{
+		margin:10px 0 0 10px;
+	}
+	.reb{
+		float:left;
+	}
+	.layui-form-label{
+		width:200px;
+	}
+</style>
+</head>
+<body>
+<div class="layui-row form1">
+	<a class="layui-btn reb" href="managebuild.html">返回上一层</a>
+	<label class="layui-form-label">添加管理员：</label>
+	<div class="layui-input-inline">
+		<select name="tname" lay-verify="" class="teach">
+		  <option value="">请选择</option>
+		  
+		</select>
+	</div>
+    <button class="layui-btn add">点击添加</button>
+</div>
+<table id="lack" lay-filter="test"></table>
+<script type="text/html" id="barDemo">
+	<a class="layui-btn layui-btn-xs" lay-event="del">移除</a>
+</script>
+<script src="../layui/layui.js"></script>
+<script>
+layui.use('table', function(){
+  var table = layui.table,
+  	  $ = layui.jquery;
+	var buildid=location.href.split("=")[1];
+	$.ajax({
+	  type: "post",
+		url: "http://localhost:8080/chum/teaservlet",
+		data:{'tea':'queryma'},
+		dataType: "json",
+		success: function (data) {
+			var option="";
+			for(var i in data){
+				option += '<option value="'+data[i].teacher_ID+'">'+data[i].teacher_Name+'</option>';
+			}
+			$(".teach").append(option);
+		}
+  });
+  var tableIns=table.render({
+    elem: '#lack'
+		,id:'buildmange'
+    ,url: 'http://localhost:8080/chum/tbservlet?tb=querytea&id='+buildid //数据接口
+    ,method:'get'
+    ,cols: [[ //表头
+   	   {field: 'teacher_ID', title: 'id',sort:true, fixed: 'left' }     
+      ,{field: 'teacher_Name', title: '姓名'}
+      ,{field: 'teacher_Sex', title: '性别' }
+      ,{field: 'teacher_Tel', title: '电话' }
+      ,{field: 'teacher_Username', title: '用户名'}
+      ,{fixed: 'right', title:'操作', toolbar: "#barDemo", width:150}
+    ]]
+  });
+  table.on('tool(test)',function(obj){
+	  var data = obj.data; //获得当前行数据
+    var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+	  if(layEvent === 'del'){
+		  layer.confirm('真的要移除姓名为：'+data.teacher_Name+"的管理员吗?", function(index){
+			  $.ajax({
+				  url:'http://localhost:8080/chum/tbservlet',
+				  type:'post',
+				  data:{'tb':'del','bid':buildid,'tid':data.teacher_ID},
+					dataType:'json',
+				  success:function(suc){
+					  if(suc){
+						  obj.del();
+						  layer.msg("移除成功",{icon:1});
+					  }else{
+						  layer.msg("移除失败",{icon:5});
+					  }					  
+				  }
+			  });
+			  layer.close(index);
+		  });
+	  }
+  });
+  //添加
+  $('.add').click(function(){
+	  var tid=$('select[name=tname]').val();
+	  $.ajax({
+		  type: "post",
+			url: "http://localhost:8080/chum/tbservlet",
+			data:{'tb':'add','bid':buildid,'tid':tid},
+			dataType: "json",
+			success: function (data) {
+				if(data){
+					layer.msg("添加成功",{icon:1});
+				}else{
+					layer.msg("该管理员已存在!",{icon:1});
+				}
+				
+			}
+	  });
+	  // table.reload('buildmange');
+		tableIns.reload();
+  });
+});
+</script>
+</body>
+</html>

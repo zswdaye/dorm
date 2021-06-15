@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>缺寝记录</title>
+<link rel="stylesheet" href="../layui/css/layui.css" media="all">
+<style type="text/css">
+	.content{
+		text-align:center;
+	}
+	.bulid{
+		font:25px bold Serif;
+		margin:10px 0;
+	}
+	a{
+		display:block;
+	}
+</style>
+</head>
+<body>
+<div class="layui-container content">
+	<div class="bulid">请选择楼栋</div>
+	<div id="dong"></div>
+	
+</div>
+<script src="../layui/layui.js"></script>
+<script type="text/javascript">
+layui.use('element', function(){
+	  var element = layui.element,
+	  	  $ = layui.jquery;
+	  $.ajax({
+		  type: "get",
+			url: "http://localhost:8080/chum/buildservlet?build=query",
+			dataType: "json",
+			success: function (data) {
+				var a="";
+				for(var i in data){
+					a += '<a href="lackrecord.html?buildID='+data[i].building_ID+'">'+data[i].building_Name+'</a>'
+				}
+				$("#dong").html(a);
+			}
+	  })
+	  
+	});	
+</script>
+</body>
+</html>

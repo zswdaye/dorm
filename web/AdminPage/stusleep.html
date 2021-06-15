@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>学生入住登记</title>
+<link rel="stylesheet" href="../layui/css/layui.css" media="all">
+<style type="text/css">
+	.form1{
+		width:370px;
+		font:bold 24px sans-serif;
+		margin:10px auto;
+		text-align:center;
+	}
+	.layui-form{
+		width:370px;
+		margin:0 auto;
+	}
+</style>
+</head>
+<body>
+<div class="form1">寝室入住登记</div>
+<form class="layui-form">
+	<div class="layui-form-item">
+		<label class="layui-form-label">楼栋</label>
+		<div class="layui-input-inline">
+			<select name="build" lay-verify="required" lay-filter="test" class="build">
+			  <option value="">请选择</option>
+			  
+			</select>
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">寝室</label>
+		<div class="layui-input-inline">
+			<select name="opt" lay-verify="required" class="domi">
+			  <option value="">请选择</option>
+	
+			</select>
+		</div>
+	</div>
+	<div class="layui-form-item">
+	  <label class="layui-form-label">学生学号</label>
+	  <div class="layui-input-inline">
+        <input type="text" name="title" required  lay-verify="required" autocomplete="off" class="layui-input">
+      </div>
+    </div>
+    <div class="layui-form-item">
+    	<div class="layui-input-block">
+    		<button class="layui-btn" lay-submit lay-filter="sleep">确定入住</button>
+        </div>
+    </div>
+</form>
+
+<script src="../layui/layui.js"></script>
+<script>
+layui.use('form', function(){
+	var form = layui.form,
+  	  $ = layui.jquery;
+  $.ajax({
+	  type: "post",
+      url: "http://localhost:8080/chum/buildservlet",
+			data:{"build":"query"},
+      dataType: "json",
+      success: function (data) {
+    	  var option="";
+    	  for(var i in data){
+    		  option += '<option value="'+data[i].building_ID+'">'+data[i].building_Name+'</option>';
+    	  }
+    	  $(".build").append(option);
+    	  form.render();
+      }
+  });
+
+  form.on("select(test)", function(data){	  
+	  var buildid=data.value;
+	  $.ajax({
+		  type: "post",
+			url: "http://localhost:8080/chum/domiservlet",
+			data:{"domit":"querybyid","buildid":buildid},
+			dataType: "json",
+			success: function (data) {
+				var option="<option value=''>请选择</option>";
+				for(var i in data){
+					option += '<option value="'+data[i].domitory_ID+'">'+data[i].domitory_Name+'</option>';
+				}
+				$(".domi").html(option);
+				form.render();
+			}
+	  });
+  });
+	form.on('submit(sleep)', function(data){
+	  $.ajax({
+		  url:'http://localhost:8080/chum/studentservlet?stu=move',
+		  type:'post',
+		  data:data.field,
+      dataType:'json',
+			async:false,
+		  success:function(suc){	
+				if(suc.code===200){
+          alert("入住成功");
+        }else if(suc.code===300){
+					alert("该生已入住或已迁出！");
+				}else if(suc.code===400){
+					alert("请选择正确的楼栋！");
+				}else if(suc.code===500){
+					alert("该学生不存在！");
+				}
+				else{
+					alert("该寝室已住满！");
+				}	 
+		  }
+	  });
+  });
+
+});
+</script>
+</body>
+</html>

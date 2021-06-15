@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>学生寝室调换</title>
+<link rel="stylesheet" href="../layui/css/layui.css" media="all">
+<style>
+	.qian{
+		width:370px;
+		font:bold 24px sans-serif;
+		margin:10px auto;
+		text-align:center;
+	}
+	.content{
+		width:370px;
+		margin:10px auto;
+		text-align:center;
+	}
+</style>
+</head>
+<body>
+<div class="qian">学生寝室调换</div>
+<form class="layui-form content">
+	<div class="layui-form-item">
+	    <label class="layui-form-label">学生学号</label>
+	    <div class="layui-input-inline">
+	      <input type="text" name="username" required  lay-verify="required" placeholder="请输入要进行寝室调换的学生学号" autocomplete="off" class="layui-input">
+	    </div>
+	</div>
+	<button class="layui-btn" lay-submit lay-filter="acti">确定</button>
+</form>
+<script src="../layui/layui.js"></script>
+<script>
+layui.use('form', function(){
+  var form = layui.form,
+      $=layui.jquery;
+
+	form.on('submit(acti)', function(data){
+	  $.ajax({
+		  url:'http://localhost:8080/chum/domiservlet?domit=isexchange',
+		  type:'post',
+		  data:data.field,
+      dataType:'json',
+		  success:function(suc){	
+				if(suc.code===200){
+					window.location.href="exchange.html?username="+data.field.username;
+				}else if(suc.code===300){
+					alert("该学生不存在!");
+					window.location.href="stuex.html";
+				}
+				else{
+					alert("该学生已迁出或还未入住!");
+					window.location.href="stuex.html";
+				}	 
+		  }
+	  });
+		return false;
+  });
+  
+});
+</script>
+</body>
+</html>

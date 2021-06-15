@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>登录</title>
+<link rel="stylesheet" href="./layui/css/layui.css" media="all">
+<style type="text/css">
+	body{
+		/* background: url('./img/背景图.jpg') no-repeat; */
+		background-size: cover;
+	}
+	.layui-form{
+		position:absolute;
+		left:50%;
+		top:50%;
+		transform: translate(-50%,-50%);
+		background-color: whitesmoke;
+	}
+	.tit{
+		width:310px;
+		font:bold 24px sans-serif;
+		text-align:center;
+		margin:0 0 20px 40px;
+	}
+</style>
+</head>
+<body>
+	<form class="layui-form">
+		<p class="tit">校园宿舍管理系统</p>
+		<div class="layui-form-item">
+		    <label class="layui-form-label">身份</label>
+		    <div class="layui-input-inline">
+		      <select name="Type" lay-verify="required">
+		        <option value="">请选择</option>
+           		<option value="系统管理员">系统管理员</option>
+           		<option value="宿管员">宿管员</option>
+           		<option value="学生">学生</option>
+		      </select>
+		    </div>
+		</div>   
+        <div class="layui-form-item">
+    		<label class="layui-form-label">用户名</label>
+    		<div class="layui-input-inline">
+      			<input type="text" name="username" required  lay-verify="required" autocomplete="off" class="layui-input">
+    		</div>
+  		</div>
+  		<div class="layui-form-item">
+    		<label class="layui-form-label">密码</label>
+    		<div class="layui-input-inline">
+      			<input type="password" name="password" required lay-verify="required" placeholder="请输入密码" autocomplete="off" class="layui-input">
+    		</div>
+  		</div>
+		<div class="layui-form-item">
+		    <div class="layui-input-block">
+		      <button class="layui-btn" lay-submit lay-filter="login" id="login">登录</button>
+		    </div>
+		</div>
+	</form>
+	
+<script src="./layui/layui.js"></script>
+<script>
+layui.use('form', function(){
+	var form = layui.form,
+  	  $ = layui.jquery;
+	form.on('submit(login)',function(data){
+		$.ajax({
+			type: "post",
+			url: "http://localhost:8080/chum/loginservlet",
+			data: data.field,
+			dataType: "json",
+			success: function (response) {
+				if(data.field.Type==="系统管理员"){
+					sessionStorage.setItem("user",JSON.stringify(response));
+					window.location.href="Page/adindex.html";
+				}else if(data.field.Type==="宿管员"){
+					sessionStorage.setItem("user",JSON.stringify(response));
+					window.location.href="Page/teaindex.html";
+				}else if(data.field.Type==="学生"){
+					if(response.code===200){
+						sessionStorage.setItem("user",JSON.stringify(response));
+						window.location.href="Page/stuindex.html";
+					}else{
+						alert("您未入住或已搬出！");
+					}					
+				}
+			},
+			error:function(){
+				alert("用户名或密码错误");
+			}
+		});
+		return false;
+	})
+
+});
+</script>
+</body>
+</html>

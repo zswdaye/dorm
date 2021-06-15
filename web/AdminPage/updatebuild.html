@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>修改楼栋</title>
+<link rel="stylesheet" href="../layui/css/layui.css" media="all">
+<style type="text/css">
+	.imation{
+		text-align:center;
+		color:#393D49;
+		font:bold 25px sans-serif;
+	}
+	.form1{
+		width:500px;
+		padding:30px;
+		margin:0 auto;
+	}
+</style>
+</head>
+<body>
+<div class="layui-row">
+	<div class="layui-col-md12 imation">修改楼栋</div>
+</div>
+<form class="layui-form form1">
+  <div class="layui-form-item">
+    <label class="layui-form-label">名称</label>
+    <div class="layui-input-inline">
+      <input type="text" name="title" required  lay-verify="required" autocomplete="off" class="layui-input">
+    </div>
+  </div>
+  <div class="layui-form-item layui-form-text">
+    <label class="layui-form-label">简介</label>
+    <div class="layui-input-block">
+      <textarea name="desc" required lay-verify="required" class="layui-textarea"></textarea>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <div class="layui-input-block">
+      <button class="layui-btn" lay-submit lay-filter="formDemo">修改</button>
+      <a class="layui-btn layui-btn-primary" href="managebuild.html">返回上一页</a>
+    </div>
+  </div>
+</form>
+
+<script src="../layui/layui.js"></script>
+<script>
+layui.use('form', function(){
+  var form = layui.form,
+      $=layui.jquery;
+  var buildid=location.href.split("=")[1];
+  $.ajax({
+      type: "post",
+      url: "http://localhost:8080/chum/buildservlet",
+      data:{'build':'queryad','id':buildid},
+      dataType: "json",
+      success: function (data) {
+        $("input[name=title]").val(data.building_Name);
+        $("textarea[name=desc]").val(data.building_Introduction);        
+        form.render(); //更新全部         
+      }
+  });
+  form.on('submit(formDemo)', function(data){
+	  $.ajax({
+		  url:'http://localhost:8080/chum/buildservlet?build=update&id='+buildid,
+		  type:'post',
+		  data:data.field,
+      dataType:'json',
+		  success:function(suc){
+				if(suc.code===200){
+          alert('修改成功！');
+          window.location.href="managebuild.html";
+        }else{
+          alert('修改失败，已有该栋名字！');
+          window.location.href="updatebuild.html?id="+buildid;
+        }					  		
+		  }
+	  });
+		return false;
+  });
+});
+</script>
+</body>
+</html>

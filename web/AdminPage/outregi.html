@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>学生迁出登记</title>
+<link rel="stylesheet" href="../layui/css/layui.css" media="all">
+<style type="text/css">
+	.tit{
+		color:red;
+		width:300px;
+		margin:10px auto 15px;
+		text-align:center;
+	}
+	.layui-form{
+	  width:400px;
+		margin:0 auto;
+	}
+	.layui-form .mu{
+		display:inline-block;
+		margin:0 0 10px 35px;
+	}
+	button{
+		margin-left:110px;
+	}
+</style>
+</head>
+<body>
+<p class="tit">一旦迁出，将不可恢复，请确定是否要迁出！</p>
+<form class="layui-form">
+	<div>
+		<span class="mu">学生学号：</span>
+		<span class="username"></span>
+	</div>
+	<div>
+		<span class="mu">学生姓名：</span>
+		<span class="name"></span>
+	</div>
+	<div>
+		<span class="mu">学生性别：</span>
+		<span class="sex"></span>
+	</div>
+	<div>
+		<span class="mu">学生班级：</span>
+		<span class="clas"></span>
+	</div>
+	<div class="layui-form-item layui-form-text">
+	    <label class="layui-form-label">迁出备注:</label>
+	    <div class="layui-input-block">
+	      <textarea name="desc" class="layui-textarea" ></textarea>
+	    </div>
+    </div>
+		<button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+		<a class="layui-btn layui-btn-primary" href="./stuout.html">返回上一页</a>
+</form>
+<script src="../layui/layui.js"></script>
+<script>
+layui.use('form', function(){
+	var form = layui.form,
+  	  $ = layui.jquery;
+	var stuusername=location.href.split("=")[1];
+	$.ajax({
+		type: "post",
+		url: "http://localhost:8080/chum/studentservlet",
+		data:{"stu":"queryus","username":stuusername},
+		dataType: "json",
+		success: function (data) {
+			$(".username").html(data.student_Username);
+			$(".name").html(data.student_Name);
+			$(".sex").html(data.student_Sex);
+			$(".clas").html(data.student_Class);
+		}
+	});
+	form.on('submit(formDemo)', function(data){
+	  $.ajax({
+		  url:'http://localhost:8080/chum/outservlet?out=add&username='+stuusername,
+		  type:'post',
+		  data:data.field,
+      dataType:'json',
+		  success:function(suc){	
+				if(suc){
+					alert("该学生迁出成功！");
+					window.location.href="stuout.html";					
+        }else{
+					alert("迁出失败！");
+					window.location.href="stuout.html";
+				}	 
+		  }
+	  });
+		return false;
+  });
+});
+</script>
+</body>
+</html>
